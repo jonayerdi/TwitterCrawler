@@ -1,7 +1,6 @@
 package twitter;
 
 import twitter4j.*;
-import twitter4j.auth.AccessToken;
 import twitter4j.conf.Configuration;
 import twitter4j.conf.ConfigurationBuilder;
 
@@ -13,23 +12,19 @@ import java.util.List;
  */
 public class TweetNavigator {
 
-    private static final String consumerKey = "xxxxxxx",
-                                consumerSecret = "xxxxxxx",
-                                twitterAccessToken = "xxxxxxx",
-                                twitterAccessTokenSecret = "xxxxxxx";
-
     private final Twitter twitter;
 
     public TweetNavigator() {
         ConfigurationBuilder builder = new ConfigurationBuilder();
-        builder.setOAuthConsumerKey(consumerKey);
-        builder.setOAuthConsumerSecret(consumerSecret);
+        //builder.setOAuthConsumerKey(consumerKey);
+        //builder.setOAuthConsumerSecret(consumerSecret);
+        builder.setDebugEnabled(false);
         Configuration configuration = builder.build();
         TwitterFactory factory = new TwitterFactory(configuration);
         twitter = factory.getInstance();
-        //twitter.setOAuthConsumer(consumerKey, consumerSecret);
-        AccessToken accessToken = new AccessToken(twitterAccessToken, twitterAccessTokenSecret);
-        twitter.setOAuthAccessToken(accessToken);
+        ////twitter.setOAuthConsumer(consumerKey, consumerSecret);
+        //AccessToken accessToken = new AccessToken(twitterAccessToken, twitterAccessTokenSecret);
+        //twitter.setOAuthAccessToken(accessToken);
     }
 
     /**
@@ -48,6 +43,24 @@ public class TweetNavigator {
     }
 
     /**
+     * Fetch a tweet from its TweetID
+     *
+     * @param tweetID
+     */
+    public List<Status> searchTweets(String searchTerms, int maxResults) {
+        try {
+            Query query = new Query(searchTerms);
+            query.setCount(maxResults);
+            query.setLang("en");
+            QueryResult result = twitter.search(query);
+            return result.getTweets();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
      * Gets the last tweets posted by tweet.getUser()
      *
      * @param tweet Base tweet from which to search for more tweets
@@ -57,9 +70,10 @@ public class TweetNavigator {
     public List<Status> getUserTimelineTweets(Status tweet, int maxResults) {
         List<Status> userTimelineTweets = new ArrayList<Status>();
         try {
-            for(int i = 0 ; i < maxResults/50 ; i++) {
+            for(int i = 1 ; i <= maxResults/50 ; i++) {
                 userTimelineTweets.addAll(twitter.getUserTimeline(tweet.getUser().getId(), new Paging(i,50)));
             }
+            userTimelineTweets.addAll(twitter.getUserTimeline(tweet.getUser().getId(), new Paging((maxResults/50) + 1,maxResults%50)));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -78,7 +92,7 @@ public class TweetNavigator {
         Status currentTweet = tweet;
         int fetched = 0;
         try {
-            while(fetched < maxResults) {
+            while(fetched < maxResults && currentTweet.getInReplyToStatusId() > 0) {
                 currentTweet = twitter.showStatus(currentTweet.getInReplyToStatusId());
                 replyTweets.add(currentTweet);
                 fetched++;
@@ -125,33 +139,6 @@ public class TweetNavigator {
             e.printStackTrace();
         }
         return  replyTweets;
-    }
-
-    /**
-     * Returns a List of tweets related to the provided tweet
-     *
-     * @param tweet Base tweet from which to search for more tweets
-     * @param maxResults Maximum number of tweets fetched in total
-     * @return A List of tweets related to the provided tweet
-     */
-    public List<Status> searchRelatedTweets(Status tweet, int maxResults) {
-        List<Status> relatedTweets = new ArrayList<Status>();
-        //TODO: INTO ANOTHER CLASS
-        return relatedTweets;
-    }
-
-    /**
-     *
-     *
-     * @param tweet
-     * @param relatedTweets
-     * @param maxResults
-     * @return
-     */
-    public List<Status> filterRelatedTweets(Status tweet, List<Status> relatedTweets, int maxResults) {
-        List<Status> filteredList = new ArrayList<Status>();
-        //TODO: INTO ANOTHER CLASS
-        return filteredList;
     }
 
 }
