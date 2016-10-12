@@ -70,10 +70,9 @@ public class TweetNavigator {
     public List<Status> getUserTimelineTweets(Status tweet, int maxResults) {
         List<Status> userTimelineTweets = new ArrayList<Status>();
         try {
-            for(int i = 1 ; i <= maxResults/50 ; i++) {
-                userTimelineTweets.addAll(twitter.getUserTimeline(tweet.getUser().getId(), new Paging(i,50)));
+            for(int i = 1 ; i <= maxResults/100 ; i++) {
+                userTimelineTweets.addAll(twitter.getUserTimeline(tweet.getUser().getId(), new Paging(i,100)));
             }
-            userTimelineTweets.addAll(twitter.getUserTimeline(tweet.getUser().getId(), new Paging((maxResults/50) + 1,maxResults%50)));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -115,7 +114,7 @@ public class TweetNavigator {
         try {
             //Search for tweets with @tweet.getUser() since tweet was posted
             Query query = new Query("@" + tweet.getUser().getScreenName() + " since_id:" + tweet.getId());
-            query.setCount(50);
+            query.setCount(100);
             QueryResult result = twitter.search(query);
             while(query != null) {
                 List<Status> resultTweets = result.getTweets();
@@ -129,7 +128,7 @@ public class TweetNavigator {
                 query = result.nextQuery();
 
                 if (query != null) {
-                    if(replyTweets.size()<maxResults-50)
+                    if(replyTweets.size()<maxResults-100)
                         result = twitter.search(query);
                     //Break if we can get more than maxResults in the next cycle
                     else break;
