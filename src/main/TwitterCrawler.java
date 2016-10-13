@@ -44,6 +44,8 @@ public class TwitterCrawler {
     public List<Tweet> crawl(Tweet tweet) {
         List<Tweet> resultList;
         int lastResultSize = 0;
+        //Do not repeat users
+        Set<String> crawledUsers = new HashSet<String>();
         //We use Maps with textHashes as keys so that there are no duplicates
         Map<Integer,Tweet> toCrawlResponse = new HashMap<Integer,Tweet>();
         Map<Integer,Tweet> toCrawlUser = new HashMap<Integer,Tweet>();
@@ -73,7 +75,10 @@ public class TwitterCrawler {
                 List<Tweet> fetchList = Tweet.createList(twitter.getResponseTweets(crawl.getStatus(), FETCH_TWEETS));
                 //fetchList.addAll(Tweet.createList(twitter.getInReplyToTweets(crawl.getStatus(), FETCH_TWEETS)));
                 for(Tweet fetchTweet : fetchList)
-                    toCrawlUser.put(fetchTweet.getTextHash(),fetchTweet);
+                    if(!crawledUsers.contains(fetchTweet.getStatus().getUser().getScreenName())) {
+                        toCrawlUser.put(fetchTweet.getTextHash(),fetchTweet);
+                        crawledUsers.add(fetchTweet.getStatus().getUser().getScreenName());
+                    }
             }
             //Add already crawled tweets to result
             result.putAll(toCrawlResponse);
