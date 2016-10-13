@@ -1,5 +1,6 @@
 package main;
 
+import misc.Console;
 import twitter.Tweet;
 import twitter.TweetNavigator;
 
@@ -11,11 +12,12 @@ import java.util.*;
  */
 public class TwitterCrawler {
 
-    public static final int FETCH_TWEETS = 100;
+    public static final int FETCH_TWEETS = 1000;
 
     private TweetNavigator twitter;
 
     public static void main(String[] args) {
+        Console.captureOutput();
         TwitterCrawler crawler = new TwitterCrawler();
         crawler.start();
     }
@@ -24,7 +26,7 @@ public class TwitterCrawler {
         try {
             twitter = new TweetNavigator();
             Scanner in = new Scanner(System.in);
-            System.out.print("TweetID: ");
+            Console.out.print("TweetID: ");
             long tweetID = Long.valueOf(in.nextLine());
             List<Tweet> result = crawl(tweetID);
             FileOutputStream out = new FileOutputStream(tweetID + ".csv");
@@ -50,8 +52,9 @@ public class TwitterCrawler {
         toCrawlResponse.put(tweet.getTextHash(),tweet);
         toCrawlUser.put(tweet.getTextHash(),tweet);
         while(result.size() + toCrawlResponse.size() + toCrawlUser.size() - 1 < FETCH_TWEETS) {
-            System.out.println(lastResultSize + " tweets fetched");
+            Console.out.println("ResultSize: " + lastResultSize);
             //Fetch tweets from the same user
+            Console.out.println("toCrawlUser: " + toCrawlUser.size());
             for (Integer key : toCrawlUser.keySet()) {
                 Tweet crawl = toCrawlUser.get(key);
                 List<Tweet> fetchList = Tweet.createList(twitter.getUserTimelineTweets(crawl.getStatus(), 100));
@@ -59,10 +62,12 @@ public class TwitterCrawler {
                     toCrawlResponse.put(fetchTweet.getTextHash(),fetchTweet);
             }
             //Add already crawled tweets to result
-            System.out.println(toCrawlUser.size() + " tweets crawled from same users");
             result.putAll(toCrawlUser);
             toCrawlUser.clear();
+            //Early exit
+            if(result.size() + toCrawlResponse.size() - 1 >= FETCH_TWEETS) break;
             //Fetch in-reply-to and response tweets
+            Console.out.println("toCrawlResponse: " + toCrawlResponse.size());
             for (Integer key : toCrawlResponse.keySet()) {
                 Tweet crawl = toCrawlResponse.get(key);
                 List<Tweet> fetchList = Tweet.createList(twitter.getResponseTweets(crawl.getStatus(), FETCH_TWEETS));
@@ -71,7 +76,6 @@ public class TwitterCrawler {
                     toCrawlUser.put(fetchTweet.getTextHash(),fetchTweet);
             }
             //Add already crawled tweets to result
-            System.out.println(toCrawlResponse.size() + " tweets crawled from responses");
             result.putAll(toCrawlResponse);
             toCrawlResponse.clear();
             //If we have not fetched more tweets, we terminate

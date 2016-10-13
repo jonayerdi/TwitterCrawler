@@ -11,7 +11,9 @@ buildNumber.properties
 .mvn/timing.properties
 
 #Secret stuff
+credentials.ini
 twitter4j.properties
+twitter4j.properties.old
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
