@@ -1,11 +1,16 @@
 package twitter;
 
+import com.opencsv.CSVReader;
 import twitter4j.Status;
 
+import java.io.FileReader;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -52,6 +57,34 @@ public class Tweet {
     }
 
     /**
+     * Reads tweets from CSV and returns the List
+     *
+     * @param filename File from which to read the CSV
+     * @return The list of tweets read from the CSV
+     */
+    public static List<Tweet> readFromCSV(String filename) {
+        List<Tweet> tweets = new ArrayList<Tweet>();
+        try {
+            CSVReader reader = new CSVReader(new FileReader(filename),';');
+            List<String[]> csvEntries = reader.readAll();
+            for(String[] row : csvEntries) {
+                try {
+                    Tweet tweet = new Tweet(
+                            TwitterStatus.create(Long.valueOf(row[0])
+                                    , TwitterUser.create(Long.valueOf(row[1]),row[2]),row[3]
+                                    ,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.0").parse(row[4])
+                                    ,Integer.valueOf(row[5]),Integer.valueOf(row[6]))
+                    );
+                    tweets.add(tweet);
+                } catch (Exception e1) {}
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return tweets;
+    }
+
+    /**
      * Writes a ; separated CSV with the provided tweets into the provided OutputStream
      *
      * @param tweets List of tweets to write to the CSV
@@ -64,7 +97,7 @@ public class Tweet {
             Status status = tweet.getStatus();
             print.println(status.getId()+";"+status.getUser().getId()+";"
                     +toCSVString(status.getUser().getScreenName())+";"+toCSVString(status.getText())
-                    +";"+status.getRetweetCount()+";"+new Timestamp(status.getCreatedAt().getTime())
+                    +";"+new Timestamp(status.getCreatedAt().getTime())+";"+status.getRetweetCount()
                     +";"+status.getFavoriteCount()+";"+status.getText().hashCode());
         }
     }
