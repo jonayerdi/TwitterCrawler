@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Scanner;
 
 /**
- * Created by User on 12/10/2016.
+ * Created by Jon Ayerdi on 12/10/2016.
  */
 public class TwitterSearch {
 
@@ -21,7 +21,7 @@ public class TwitterSearch {
 
     public void start() {
         try {
-            twitter = new TweetNavigator();
+            twitter = new TweetNavigator(TwitterCrawler.CREDENTIALS_FILE);
             Scanner in = new Scanner(System.in);
             System.out.print("Search: ");
             List<Tweet> result = Tweet.createList(twitter.searchTweets(in.nextLine(),30));

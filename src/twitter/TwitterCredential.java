@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.Scanner;
 
 /**
- * Created by User on 13/10/2016.
+ * Created by Jon Ayerdi on 13/10/2016.
+ *
+ * Contains all the necessary credential information to connect to the twitter api
  */
 public class TwitterCredential {
 
@@ -19,6 +21,20 @@ public class TwitterCredential {
     private int secondsUntilReset = 0;
     private long resetTimestamp = 0;
 
+    /**
+     * Reads credentials from the provided InputStream
+     *
+     * Format:
+     *
+     * oauth.consumerKey=XXXXXXXXXXXXXXXXXXXXX
+     * oauth.consumerSecret=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+     * oauth.accessToken=XXXXXXXXXXXXXXXXXX-XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+     * oauth.accessTokenSecret=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+     * ...
+     *
+     * @param input InputStream from which to read the credentials
+     * @return Array of loaded credentials
+     */
     public static TwitterCredential[] loadCredentials(InputStream input) {
         List<TwitterCredential> credentials = new ArrayList<TwitterCredential>();
         Scanner in = new Scanner(input);
@@ -33,6 +49,20 @@ public class TwitterCredential {
         return credentials.toArray(new TwitterCredential[0]);
     }
 
+    /**
+     * Reads credentials from the provided file
+     *
+     * Format:
+     *
+     * oauth.consumerKey=XXXXXXXXXXXXXXXXXXXXX
+     * oauth.consumerSecret=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+     * oauth.accessToken=XXXXXXXXXXXXXXXXXX-XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+     * oauth.accessTokenSecret=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+     * ...
+     *
+     * @param filename file of the File from which to read the credentials
+     * @return Array of loaded credentials
+     */
     public static TwitterCredential[] loadCredentialsFromFile(String filename) {
         TwitterCredential[] credentials = new TwitterCredential[0];
         try {
@@ -45,6 +75,11 @@ public class TwitterCredential {
         return credentials;
     }
 
+    /**
+     * Calculates the number of seconds remaining to reset the rate limit of this credential
+     *
+     * @return The number of seconds remaining to reset the rate limit of this credential
+     */
     public int remainingSeconds() {
         return (int)((resetTimestamp/1000 + secondsUntilReset) - System.currentTimeMillis()/1000);
     }

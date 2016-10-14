@@ -8,10 +8,13 @@ import java.io.FileOutputStream;
 import java.util.*;
 
 /**
- * Created by User on 11/10/2016.
+ * Created by Jon Ayerdi on 11/10/2016.
  */
 public class TwitterCrawler {
 
+    public static final String CREDENTIALS_FILE = "credentials.ini";
+
+    public static final int MIN_RETWEETS = 1;
     public static final int FETCH_TWEETS = 1000;
 
     private TweetNavigator twitter;
@@ -24,7 +27,7 @@ public class TwitterCrawler {
 
     public void start() {
         try {
-            twitter = new TweetNavigator();
+            twitter = new TweetNavigator(CREDENTIALS_FILE);
             Scanner in = new Scanner(System.in);
             Console.out.print("TweetID: ");
             long tweetID = Long.valueOf(in.nextLine());
@@ -37,10 +40,22 @@ public class TwitterCrawler {
         }
     }
 
+    /**
+     * Extracts tweets related to the provided tweet
+     *
+     * @param tweetID ID of the tweet to crawl
+     * @return A list with the extracted tweets
+     */
     public List<Tweet> crawl(long tweetID) {
         return crawl(new Tweet(twitter.getTweetByTweetID(tweetID)));
     }
 
+    /**
+     * Extracts tweets related to the provided tweet
+     *
+     * @param tweet The tweet to crawl
+     * @return A list with the extracted tweets
+     */
     public List<Tweet> crawl(Tweet tweet) {
         List<Tweet> resultList;
         int lastResultSize = 0;
@@ -58,22 +73,27 @@ public class TwitterCrawler {
             //Fetch tweets from the same user
             Console.out.println("toCrawlUser: " + toCrawlUser.size());
             for (Integer key : toCrawlUser.keySet()) {
+                //Early exit
+                if(toCrawlResponse.size() > 100 || result.size()
+                        + toCrawlResponse.size() + toCrawlUser.size() - 1 >= FETCH_TWEETS) break;
                 Tweet crawl = toCrawlUser.get(key);
-                List<Tweet> fetchList = Tweet.createList(twitter.getUserTimelineTweets(crawl.getStatus(), 100));
+                List<Tweet> fetchList = Tweet.createList(twitter.getUserTimelineTweets(crawl.getStatus(), MIN_RETWEETS, 100));
                 for(Tweet fetchTweet : fetchList)
                     toCrawlResponse.put(fetchTweet.getTextHash(),fetchTweet);
             }
             //Add already crawled tweets to result
             result.putAll(toCrawlUser);
             toCrawlUser.clear();
-            //Early exit
-            if(result.size() + toCrawlResponse.size() - 1 >= FETCH_TWEETS) break;
             //Fetch in-reply-to and response tweets
             Console.out.println("toCrawlResponse: " + toCrawlResponse.size());
             for (Integer key : toCrawlResponse.keySet()) {
+                //Early exit
+                if(toCrawlUser.size() > 100 || result.size()
+                        + toCrawlResponse.size() + toCrawlUser.size() - 1 >= FETCH_TWEETS) break;
                 Tweet crawl = toCrawlResponse.get(key);
-                List<Tweet> fetchList = Tweet.createList(twitter.getResponseTweets(crawl.getStatus(), FETCH_TWEETS));
-                //fetchList.addAll(Tweet.createList(twitter.getInReplyToTweets(crawl.getStatus(), FETCH_TWEETS)));
+                //List<Tweet> fetchList = Tweet.createList(twitter.getResponseTweets(crawl.getStatus(), MIN_RETWEETS, 100));
+                List<Tweet> fetchList = Tweet.createList(twitter.getMentionTweets(crawl.getStatus(), MIN_RETWEETS, 100));
+                fetchList.addAll(Tweet.createList(twitter.getInReplyToTweets(crawl.getStatus(), 100)));
                 for(Tweet fetchTweet : fetchList)
                     if(!crawledUsers.contains(fetchTweet.getStatus().getUser().getScreenName())) {
                         toCrawlUser.put(fetchTweet.getTextHash(),fetchTweet);
@@ -96,12 +116,7 @@ public class TwitterCrawler {
         result.remove(tweet.getTextHash());
         //Filter tweets
         resultList = Arrays.asList(result.values().toArray(new Tweet[0]));
-        resultList = filterTweets(resultList);
         return resultList;
-    }
-
-    public List<Tweet> filterTweets(List<Tweet> tweets) {
-        return tweets;
     }
 
 }

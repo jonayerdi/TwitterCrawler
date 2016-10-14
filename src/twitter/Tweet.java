@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by User on 11/10/2016.
+ * Created by Jon Ayerdi on 11/10/2016.
  */
 public class Tweet {
 
@@ -21,8 +21,12 @@ public class Tweet {
         this.textHash = status.getText().hashCode();
     }
 
-    //Utility
-
+    /**
+     * Compares the text of this tweet and the provided tweet
+     *
+     * @param tweet Other tweet to compare
+     * @return true if the texts are identical, false otherwise
+     */
     public boolean isDuplicateOf(Tweet tweet) {
         return this.textHash == tweet.getTextHash();
     }
@@ -32,6 +36,12 @@ public class Tweet {
                 + "\nUser: " + status.getUser().getScreenName() + "\nText: " + status.getText();
     }
 
+    /**
+     * Creates a List<Tweet> out of the statuses from the provided List
+     *
+     * @param statuses List of Status instances
+     * @return A list of Tweet instances created from the provided statuses
+     */
     public static List<Tweet> createList(List<Status> statuses) {
         List<Tweet> tweets = new ArrayList<Tweet>();
         try {
@@ -41,6 +51,12 @@ public class Tweet {
         return tweets;
     }
 
+    /**
+     * Writes a ; separated CSV with the provided tweets into the provided OutputStream
+     *
+     * @param tweets List of tweets to write to the CSV
+     * @param out OutputStream in which to write the CSV
+     */
     public static void writeToCSV(List<Tweet> tweets, OutputStream out) {
         PrintStream print = new PrintStream(out);
         print.println("id;userId;userName;text;retweetCount;creationDate;favoriteCount;textHash");
@@ -53,6 +69,13 @@ public class Tweet {
         }
     }
 
+    /**
+     * Transforms the provided String so that it can be written directly as a
+     * CSV cell (neutralize existing " with "" and surround the String with ")
+     *
+     * @param s The string that must be formatted to be written in a CSV cell
+     * @return The string formatted to be written in a CSV cell
+     */
     public static String toCSVString(String s) {
         return "\"" + s.replaceAll("\"","\"\"") + "\"";
     }
