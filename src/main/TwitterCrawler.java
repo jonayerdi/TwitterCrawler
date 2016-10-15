@@ -74,8 +74,7 @@ public class TwitterCrawler {
             Console.out.println("toCrawlUser: " + toCrawlUser.size());
             for (Integer key : toCrawlUser.keySet()) {
                 //Early exit
-                if(toCrawlResponse.size() > 100 || result.size()
-                        + toCrawlResponse.size() + toCrawlUser.size() - 1 >= FETCH_TWEETS) break;
+                if(result.size() + toCrawlResponse.size() + toCrawlUser.size() - 1 >= FETCH_TWEETS) break;
                 Tweet crawl = toCrawlUser.get(key);
                 List<Tweet> fetchList = Tweet.createList(twitter.getUserTimelineTweets(crawl.getStatus(), MIN_RETWEETS, 100));
                 for(Tweet fetchTweet : fetchList)
@@ -88,8 +87,7 @@ public class TwitterCrawler {
             Console.out.println("toCrawlResponse: " + toCrawlResponse.size());
             for (Integer key : toCrawlResponse.keySet()) {
                 //Early exit
-                if(toCrawlUser.size() > 100 || result.size()
-                        + toCrawlResponse.size() + toCrawlUser.size() - 1 >= FETCH_TWEETS) break;
+                if(result.size() + toCrawlResponse.size() + toCrawlUser.size() - 1 >= FETCH_TWEETS) break;
                 Tweet crawl = toCrawlResponse.get(key);
                 //List<Tweet> fetchList = Tweet.createList(twitter.getResponseTweets(crawl.getStatus(), MIN_RETWEETS, 100));
                 List<Tweet> fetchList = Tweet.createList(twitter.getMentionTweets(crawl.getStatus(), MIN_RETWEETS, 100));

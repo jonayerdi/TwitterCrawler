@@ -19,11 +19,9 @@ import java.util.List;
 public class Tweet {
 
     private Status status;
-    private int textHash;
 
     public Tweet(Status status) {
         this.status = status;
-        this.textHash = status.getText().hashCode();
     }
 
     /**
@@ -33,7 +31,7 @@ public class Tweet {
      * @return true if the texts are identical, false otherwise
      */
     public boolean isDuplicateOf(Tweet tweet) {
-        return this.textHash == tweet.getTextHash();
+        return this.getTextHash() == tweet.getTextHash();
     }
 
     public String toString() {
@@ -92,7 +90,7 @@ public class Tweet {
      */
     public static void writeToCSV(List<Tweet> tweets, OutputStream out) {
         PrintStream print = new PrintStream(out);
-        print.println("id;userId;userName;text;retweetCount;creationDate;favoriteCount;textHash");
+        print.println("id;userId;userName;text;creationDate;retweetCount;favoriteCount;textHash");
         for(Tweet tweet : tweets) {
             Status status = tweet.getStatus();
             print.println(status.getId()+";"+status.getUser().getId()+";"
@@ -124,7 +122,7 @@ public class Tweet {
     }
 
     public int getTextHash() {
-        return textHash;
+        return status.getText().hashCode();
     }
 
 }
