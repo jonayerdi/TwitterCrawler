@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.tue.ir</groupId>
-    <artifactId>twitter-rumor-predictor</artifactId>
+    <artifactId>TwitterCrawler</artifactId>
     <version>1.0</version>
     <build>
         <plugins>
@@ -38,19 +38,9 @@
             <version>3.7</version>
         </dependency>
         <dependency>
-            <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-ui</artifactId>
-            <version>0.6.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-core</artifactId>
-            <version>0.6.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-nlp</artifactId>
-            <version>0.6.0</version>
+            <groupId>com.twitter</groupId>
+            <artifactId>twitter-text</artifactId>
+            <version>1.6.1</version>
         </dependency>
     </dependencies>
 </project>
