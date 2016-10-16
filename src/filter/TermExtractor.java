@@ -12,7 +12,7 @@ import java.util.List;
 public class TermExtractor {
 
     public static final String[] TO_REMOVE_FROM_TERMS
-            = {".",":",",",";","\n","\r","?","!","&","'","\"","(",")"};
+            = {".",":",",",";","\n","\r","?","!","&","'","\"","(",")","|"};
 
     public static List<String> extractTerms(Tweet tweet) {
         return extractTerms(tweet, new PorterStemmer());
@@ -20,8 +20,8 @@ public class TermExtractor {
 
     public static List<String> extractTerms(Tweet tweet, Stemmer stemmer) {
         List<String> terms;
-        String textWithoutEntities = removeEntities(tweet.getStatus().getText());
-        terms = splitInTerms(textWithoutEntities, stemmer);
+        //String textWithoutEntities = removeEntities(tweet.getStatus().getText());
+        terms = splitInTerms(tweet.getStatus().getText(), stemmer);
         return terms;
     }
 
@@ -61,6 +61,7 @@ public class TermExtractor {
             if(!term.isEmpty())
                 terms.add(term);
         }
+        return terms;
     }
 
 }

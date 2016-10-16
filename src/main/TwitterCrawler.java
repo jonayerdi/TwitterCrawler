@@ -1,9 +1,13 @@
 package main;
 
+import filter.PorterStemmer;
+import filter.ScoredTweet;
+import filter.TfidfFilter;
 import misc.Console;
 import twitter.Tweet;
 import twitter.TweetNavigator;
 
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.*;
 
@@ -17,12 +21,17 @@ public class TwitterCrawler {
     public static final int MIN_RETWEETS = 1;
     public static final int FETCH_TWEETS = 1000;
 
+    public static final double MAX_SCORE = 1.0;
+    public static final double MIN_SCORE = 0.7;
+    public static final int MIN_TERMS = 5;
+    public static final int MIN_TERM_SIZE = 2;
+
     private TweetNavigator twitter;
 
     public static void main(String[] args) {
         Console.captureOutput();
         TwitterCrawler crawler = new TwitterCrawler();
-        crawler.start();
+        crawler.start2();
     }
 
     public void start() {
@@ -34,6 +43,19 @@ public class TwitterCrawler {
             List<Tweet> result = crawl(tweetID);
             FileOutputStream out = new FileOutputStream(tweetID + ".csv");
             Tweet.writeToCSV(result,out);
+            out.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void start2() {
+        try {
+            FileOutputStream out = new FileOutputStream("786237498036858880_filtered.csv");
+            twitter = new TweetNavigator(CREDENTIALS_FILE);
+            List<ScoredTweet> filtered = getBestTweets(new Tweet(twitter.getTweetByTweetID(786237498036858880L))
+                    ,Tweet.readFromCSV("786237498036858880.csv"));
+            ScoredTweet.writeToCSV(filtered, out);
             out.close();
         } catch(Exception e) {
             e.printStackTrace();
@@ -115,6 +137,21 @@ public class TwitterCrawler {
         //Filter tweets
         resultList = Arrays.asList(result.values().toArray(new Tweet[0]));
         return resultList;
+    }
+
+    public List<ScoredTweet> getBestTweets(Tweet query, List<Tweet> tweets, double minScore, double maxScore) {
+        TfidfFilter filter = new TfidfFilter(TfidfFilter.ScoringMode.TFIDF
+                , new PorterStemmer(), MIN_TERMS, MIN_TERM_SIZE);
+        List<ScoredTweet> scored = filter.getScores(query, tweets);
+        List<ScoredTweet> filtered = new ArrayList<>();
+        for(ScoredTweet scoredTweet : scored)
+            if(scoredTweet.score >= minScore && scoredTweet.score <= maxScore)
+                filtered.add(scoredTweet);
+        return filtered;
+    }
+
+    public List<ScoredTweet> getBestTweets(Tweet query, List<Tweet> tweets) {
+        return getBestTweets(query, tweets, MIN_SCORE, MAX_SCORE);
     }
 
 }

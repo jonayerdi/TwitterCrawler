@@ -3,7 +3,6 @@ package filter;
 import twitter.Tweet;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,19 +18,23 @@ public class TfidfFilter {
 
     private ScoringMode mode;
     private Stemmer stemmer;
+    private int minTerms;
+    private int minTermSize;
 
-    public TfidfFilter(ScoringMode mode, Stemmer stemmer) {
+    public TfidfFilter(ScoringMode mode, Stemmer stemmer, int minTerms, int minTermSize) {
         this.mode = mode;
         this.stemmer = stemmer;
+        this.minTerms = minTerms;
+        this.minTermSize = minTermSize;
     }
 
-    public double[] getScores(Tweet query, List<Tweet> documents) {
+    public List<ScoredTweet> getScores(Tweet query, List<Tweet> documents) {
         List<String> queryTerms;
         List<List<String>> documentTerms = new ArrayList<List<String>>();
 
         List<Map<String,Double>> TF = new ArrayList<Map<String,Double>>();
         Map<String,Double> IDF;
-        double[] score = new double[documents.size()];
+        List<ScoredTweet> scoredTweets = new ArrayList<>();
 
         //Extract terms from query
         queryTerms = TermExtractor.extractTerms(query, stemmer);
@@ -43,27 +46,36 @@ public class TfidfFilter {
         }
 
         switch (mode) {
+            //Calculate TF score
             case TF:
                 for(int i = 0 ; i < documents.size() ; i++) {
                     Map<String,Double> tf = TF.get(i);
-                    score[i] = 0;
-                    for(String term : tf.keySet())
-                        if(queryTerms.contains(term))
-                            score[i] += tf.get(term);
+                    Tweet document = documents.get(i);
+                    ScoredTweet scored = new ScoredTweet(document);
+                    if(tf.size() >= minTerms)
+                        for(String term : tf.keySet())
+                            if(term.length() >= minTermSize && queryTerms.contains(term))
+                                scored.score += tf.get(term);
+                    scoredTweets.add(scored);
                 }
                 break;
+            //Calculate TFIDF score
             case TFIDF:
                 IDF = TfIdf.idf(documentTerms);
                 for(int i = 0 ; i < documents.size() ; i++) {
-                    Map<String,Double> tfidf = TfIdf.tfIdf(TF.get(i), IDF);
-                    score[i] = 0;
-                    for(String term : tfidf.keySet())
-                        if(queryTerms.contains(term))
-                            score[i] += tfidf.get(term);
+                    Map<String,Double> tf = TF.get(i);
+                    Map<String,Double> tfidf = TfIdf.tfIdf(tf, IDF);
+                    Tweet document = documents.get(i);
+                    ScoredTweet scored = new ScoredTweet(document);
+                    if(tfidf.size() >= minTerms)
+                        for(String term : tfidf.keySet())
+                            if(term.length() >= minTermSize && queryTerms.contains(term))
+                                scored.score += tfidf.get(term);
+                    scoredTweets.add(scored);
                 }
                 break;
         }
-        return score;
+        return scoredTweets;
     }
 
 }
