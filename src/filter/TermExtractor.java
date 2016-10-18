@@ -20,24 +20,26 @@ public class TermExtractor {
 
     public static List<String> extractTerms(Tweet tweet, Stemmer stemmer) {
         List<String> terms;
-        //String textWithoutEntities = removeEntities(tweet.getStatus().getText());
-        terms = splitInTerms(tweet.getStatus().getText(), stemmer);
+        String textWithoutEntities = removeEntities(tweet.getStatus().getText());
+        terms = splitInTerms(textWithoutEntities, stemmer);
         return terms;
     }
 
     public static String removeEntities(String text) {
+        if(text.startsWith("RT"))
+            text = text.substring(2);
         Extractor extractor = new Extractor();
         List<Extractor.Entity> entities = extractor.extractEntitiesWithIndices(text);
         for(Extractor.Entity entity : entities) {
             switch (entity.getType()) {
-                case HASHTAG:
-                    text = text.replaceFirst("#" + entity.getValue(), "");
+                case HASHTAG: //Don't remove these
+                    //text = text.replaceFirst("#" + entity.getValue(), "");
                     break;
                 case MENTION:
                     text = text.replaceFirst("@" + entity.getValue(), "");
                     break;
-                case CASHTAG:
-                    text = text.replaceFirst("$" + entity.getValue(), "");
+                case CASHTAG: //Don't remove these
+                    //text = text.replaceFirst("$" + entity.getValue(), "");
                     break;
                 case URL:
                     text = text.replaceFirst(entity.getValue(), "");
