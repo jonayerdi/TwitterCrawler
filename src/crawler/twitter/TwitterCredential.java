@@ -1,4 +1,4 @@
-package twitter;
+package crawler.twitter;
 
 import java.io.FileInputStream;
 import java.io.InputStream;

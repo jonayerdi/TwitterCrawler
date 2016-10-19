@@ -1,11 +1,11 @@
-package main;
+package crawler.main;
 
-import filter.PorterStemmer;
-import filter.ScoredTweet;
-import filter.TfidfFilter;
-import misc.Console;
-import twitter.Tweet;
-import twitter.TweetNavigator;
+import crawler.filter.PorterStemmer;
+import crawler.filter.ScoredTweet;
+import crawler.filter.TfidfFilter;
+import crawler.misc.Console;
+import crawler.twitter.Tweet;
+import crawler.twitter.TweetNavigator;
 
 import java.io.FileOutputStream;
 import java.util.*;
@@ -32,17 +32,21 @@ public class TwitterCrawler {
     public static final int MIN_TERMS_TF = 5;
     public static final int MIN_TERM_SIZE_TF = 2;
 
-    private TweetNavigator twitter;
+    public TweetNavigator twitter;
 
-    public static void main(String[] args) {
+    public TwitterCrawler(String credentialsFile) throws Exception {
+        twitter = new TweetNavigator(credentialsFile);
+    }
+
+    public static void main(String[] args) throws Exception {
         Console.captureOutput();
-        TwitterCrawler crawler = new TwitterCrawler();
+        //Load credentials file
+        TwitterCrawler crawler = new TwitterCrawler(CREDENTIALS_FILE);
         crawler.start3();
     }
 
     public void start() {
         try {
-            twitter = new TweetNavigator(CREDENTIALS_FILE);
             Scanner in = new Scanner(System.in);
             Console.out.print("TweetID: ");
             long tweetID = Long.valueOf(in.nextLine());
@@ -58,7 +62,6 @@ public class TwitterCrawler {
     public void start2() {
         try {
             FileOutputStream out = new FileOutputStream("786237498036858880_filtered.csv");
-            twitter = new TweetNavigator(CREDENTIALS_FILE);
             List<ScoredTweet> filtered = getBestTweetsTFIDF(new Tweet(twitter.getTweetByTweetID(786237498036858880L))
                     ,Tweet.readFromCSV("786237498036858880.csv"));
             ScoredTweet.writeToCSV(filtered, out);
@@ -70,8 +73,6 @@ public class TwitterCrawler {
 
     public void start3() {
         try {
-            //Load credentials file
-            twitter = new TweetNavigator(CREDENTIALS_FILE);
             //Read TweetID from stdin
             Scanner in = new Scanner(System.in);
             Console.out.print("TweetID: ");

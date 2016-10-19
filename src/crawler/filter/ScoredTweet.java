@@ -1,9 +1,9 @@
-package filter;
+package crawler.filter;
 
 import com.opencsv.CSVReader;
-import twitter.Tweet;
-import twitter.TwitterStatus;
-import twitter.TwitterUser;
+import crawler.twitter.Tweet;
+import crawler.twitter.TwitterStatus;
+import crawler.twitter.TwitterUser;
 import twitter4j.Status;
 
 import java.io.FileReader;

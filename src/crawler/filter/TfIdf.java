@@ -1,4 +1,4 @@
-package filter;
+package crawler.filter;
 
 
 import java.util.*;

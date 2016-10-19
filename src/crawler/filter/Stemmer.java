@@ -1,4 +1,4 @@
-package filter;
+package crawler.filter;
 
 /**
  * Created by Jon Ayerdi on 15/10/2016.

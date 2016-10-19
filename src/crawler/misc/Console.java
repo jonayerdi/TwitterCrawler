@@ -1,4 +1,4 @@
-package misc;
+package crawler.misc;
 
 import java.io.IOException;
 import java.io.OutputStream;

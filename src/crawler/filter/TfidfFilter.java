@@ -1,6 +1,6 @@
-package filter;
+package crawler.filter;
 
-import twitter.Tweet;
+import crawler.twitter.Tweet;
 
 import java.util.ArrayList;
 import java.util.List;

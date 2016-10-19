@@ -1,7 +1,7 @@
-package main;
+package crawler.main;
 
-import twitter.Tweet;
-import twitter.TweetNavigator;
+import crawler.twitter.Tweet;
+import crawler.twitter.TweetNavigator;
 
 import java.io.FileOutputStream;
 import java.util.List;

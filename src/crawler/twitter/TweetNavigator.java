@@ -1,6 +1,6 @@
-package twitter;
+package crawler.twitter;
 
-import misc.Console;
+import crawler.misc.Console;
 import twitter4j.*;
 import twitter4j.auth.AccessToken;
 import twitter4j.conf.Configuration;

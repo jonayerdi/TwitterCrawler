@@ -1,4 +1,4 @@
-package twitter;
+package crawler.twitter;
 
 import twitter4j.RateLimitStatus;
 import twitter4j.Status;
