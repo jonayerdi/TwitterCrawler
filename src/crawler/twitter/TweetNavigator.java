@@ -62,7 +62,8 @@ public class TweetNavigator {
      */
     public static boolean shouldSwitchCredentials(int code) {
         if(code == HttpResponseCode.TOO_MANY_REQUESTS || code == HttpResponseCode.UNAUTHORIZED
-                ||code == HttpResponseCode.ENHANCE_YOUR_CLAIM)
+                ||code == HttpResponseCode.ENHANCE_YOUR_CLAIM ||code == HttpResponseCode.BAD_REQUEST
+                ||code == HttpResponseCode.UNAUTHORIZED)
             return true;
         else
             return false;
